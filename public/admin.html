@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brasil Auto Rastreios — Painel</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 48'%3E%3Ccircle cx='22' cy='18' r='15' fill='%230F7A3D'/%3E%3Cpath d='M22 47 L9.5 30 L34.5 30 Z' fill='%230F7A3D'/%3E%3Ccircle cx='22' cy='18' r='6.2' fill='%23fff'/%3E%3Ccircle cx='22' cy='18' r='3' fill='%23F2B705'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Login -->
+  <div class="overlay" id="login">
+    <div class="card">
+      <div class="chip-lg">
+        <svg width="48" height="52" viewBox="0 0 44 48" fill="none"><circle cx="22" cy="18" r="15" fill="#0F7A3D"/><path d="M22 47 L9.5 30 L34.5 30 Z" fill="#0F7A3D"/><circle cx="22" cy="18" r="6.2" fill="#fff"/><circle cx="22" cy="18" r="3" fill="#F2B705"/></svg>
+      </div>
+      <h2 class="center">Painel de Operações</h2>
+      <p class="muted center" style="font-size:13px;margin:6px 0 16px">Brasil Auto Rastreios · acesso restrito</p>
+      <input type="password" id="loginPass" placeholder="Senha do administrador" />
+      <p id="loginErr" style="color:var(--red);font-size:13px;display:none;margin:8px 0 0">Senha incorreta.</p>
+      <button class="btn primary full" id="loginBtn" style="margin-top:14px">Entrar</button>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="38" viewBox="0 0 44 48" fill="none"><circle cx="22" cy="18" r="15" fill="#0F7A3D"/><path d="M22 47 L9.5 30 L34.5 30 Z" fill="#0F7A3D"/><circle cx="22" cy="18" r="6.2" fill="#fff"/><circle cx="22" cy="18" r="3" fill="#F2B705"/></svg>
+      <div class="name">
+        <div class="t1">Brasil Auto <span class="g">Rastreios</span></div>
+        <div class="t2">PAINEL DE OPERAÇÕES</div>
+      </div>
+    </div>
+    <span class="spacer"></span>
+    <span class="live-badge off" id="connBadge"><span class="dot"></span>conectando…</span>
+    <button class="btn ghost sm" id="logoutBtn">Sair</button>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <!-- Nova viagem -->
+      <div class="card">
+        <div class="card-head"><span class="ic">➕</span><h2>Nova viagem</h2></div>
+
+        <div class="section-label">Tipo de transporte</div>
+        <div class="segmented" id="typeToggle">
+          <button type="button" data-type="guincho" class="active"><span class="em">🚚</span> Guincho</button>
+          <button type="button" data-type="cegonha"><span class="em">🚛</span> Cegonha</button>
+        </div>
+
+        <div class="section-label">Trajeto</div>
+        <label class="fld">Origem (coleta) <button type="button" class="link-btn" data-toggle="originAdv">⚙ filtros</button></label>
+        <div class="autocomplete">
+          <input id="originInput" placeholder="Endereço, CEP ou comércio…" autocomplete="off" />
+          <div class="suggestions" id="originSug"></div>
+        </div>
+        <div class="adv" id="originAdv">
+          <select id="originCategory"></select>
+          <input id="originCity" placeholder="Cidade" />
+          <input id="originUf" placeholder="UF" maxlength="2" class="uf" />
+        </div>
+
+        <label class="fld">Destino (entrega) <button type="button" class="link-btn" data-toggle="destAdv">⚙ filtros</button></label>
+        <div class="autocomplete">
+          <input id="destInput" placeholder="Endereço, CEP ou comércio…" autocomplete="off" />
+          <div class="suggestions" id="destSug"></div>
+        </div>
+        <div class="adv" id="destAdv">
+          <select id="destCategory"></select>
+          <input id="destCity" placeholder="Cidade" />
+          <input id="destUf" placeholder="UF" maxlength="2" class="uf" />
+        </div>
+
+        <div class="route-chip" id="routeChip">
+          <div class="stat"><b id="rcDist">—</b><span>distância</span></div>
+          <div class="sep"></div>
+          <div class="stat"><b id="rcTime">—</b><span>tempo est.</span></div>
+        </div>
+
+        <div class="section-label">Veículo de transporte</div>
+        <div class="grid2">
+          <div><label class="fld">Modelo do guincho/cegonha</label><input id="vehicle" placeholder="Ex.: Ford Cargo" /></div>
+          <div><label class="fld">Placa</label><input id="plate" placeholder="ABC1D23" class="plate" /></div>
+        </div>
+
+        <div class="section-label">Veículos embarcados <span id="vehHint" class="muted" style="text-transform:none;letter-spacing:0;font-weight:600"></span></div>
+        <div class="veh-list" id="vehList"></div>
+        <button type="button" class="btn ghost sm full" id="addVeh" style="margin-top:9px">＋ Adicionar veículo</button>
+
+        <div class="section-label">Motorista &amp; cliente</div>
+        <div class="grid2">
+          <div><label class="fld">Motorista</label><input id="driver" placeholder="Nome" /></div>
+          <div><label class="fld">Telefone</label><input id="driverPhone" placeholder="(11) 9…" /></div>
+        </div>
+        <label class="fld">Cliente</label>
+        <input id="customer" placeholder="Nome do cliente" />
+
+        <label class="fld">Velocidade da simulação</label>
+        <select id="speedFactor">
+          <option value="1">1× (tempo real)</option>
+          <option value="5">5×</option>
+          <option value="10" selected>10×</option>
+          <option value="30">30×</option>
+          <option value="60">60× (1 min = 1 h)</option>
+        </select>
+
+        <button class="btn primary full" id="createBtn" style="margin-top:16px">Criar viagem</button>
+      </div>
+
+      <!-- Lista -->
+      <div class="card">
+        <div class="card-head"><span class="ic">📋</span><h2>Viagens</h2><span class="hint" id="tripCount"></span></div>
+        <div id="tripList"></div>
+      </div>
+    </div>
+
+    <div class="mapwrap"><div id="map"></div></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
