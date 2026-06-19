@@ -1,0 +1,7 @@
+node_modules/
+data/trips.json
+*.log
+.env
+
+# Material de design / referência (não necessário para rodar em produção)
+InterfaceNova/

@@ -1,0 +1,18 @@
+# Blueprint do Render — sobe o servidor Node (Express + Socket.io) com tempo real.
+# No Render: New + → Blueprint → conecte o repositório com este arquivo.
+services:
+  - type: web
+    name: brasil-auto-rastreios
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /admin.html
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Defina a senha do painel no painel do Render (aba Environment).
+      # Deixe "sync: false" para você digitar o valor manualmente (não fica no repositório).
+      - key: ADMIN_PASSWORD
+        sync: false
